@@ -17,7 +17,7 @@ def test_data(file_name):
 	plot_lines(velocity)
 	displacement=acc_integration(velocity)
 	plot_lines(displacement)
-	plot3D(velocity)
+	plot3D(data)
 	plt.show()
 
 if __name__ == '__main__':

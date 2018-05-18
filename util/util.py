@@ -31,9 +31,7 @@ def read_data(file_path, columns):
 			# print(row)
 			for ii, i in enumerate(columns):
 				data[indice,ii]=row[i]
-		data[:,0]-=np.mean(data[:,0], axis=0)
-		data[:,1]-=np.mean(data[:,1], axis=0)
-		data[:,2]-=np.mean(data[:,2], axis=0)
+		data[:,2]-=10
 	f.close()
 	return data
 
@@ -61,6 +59,19 @@ def plot3D(data):
 	fig=plt.figure()
 	ax=fig.add_subplot(111, projection='3d')
 	ax.plot(xs=data[:,0], ys=data[:,1], zs=data[:,2], zdir='z')
+
+def calibration(signal):
+	inc_eng=np.sum(np.clip(signal, a_min=0, a_max=None))
+	der_eng=-1*np.sum(np.clip(signal, a_max=0, a_min=None))
+	if inc_eng==0 or der_eng==0:
+		raise ValueError('Calibration rule does NOT hold')
+
+	if inc_eng>der_eng:
+		beta_p=1
+		beta_n=inc_eng/der_eng
+	else:
+		beta_n=1
+		beta_p=der_eng/inc_eng
 
 def TZ_integration(in_signal):
 	lgth=in_signal.shape
