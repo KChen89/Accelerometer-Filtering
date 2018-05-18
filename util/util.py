@@ -7,6 +7,7 @@ import os
 import sys
 import numpy as np 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 def read_data(file_path, columns):
 	'''
@@ -30,6 +31,9 @@ def read_data(file_path, columns):
 			# print(row)
 			for ii, i in enumerate(columns):
 				data[indice,ii]=row[i]
+		data[:,0]-=np.mean(data[:,0], axis=0)
+		data[:,1]-=np.mean(data[:,1], axis=0)
+		data[:,2]-=np.mean(data[:,2], axis=0)
 	f.close()
 	return data
 
@@ -45,11 +49,22 @@ def plot_lines(data):
 	ax.set_xlim([0,num_rows])
 	ax.set_xlabel('Time')
 	ax.legend()
-	plt.show()
+
+def acc_integration(data):
+	num_rows, num_cols=data.shape
+	int_data=np.zeros(data.shape)
+	for i in range(num_cols):
+		int_data[:,i]=TZ_integration(data[:,i])
+	return int_data
+
+def plot3D(data):
+	fig=plt.figure()
+	ax=fig.add_subplot(111, projection='3d')
+	ax.plot(xs=data[:,0], ys=data[:,1], zs=data[:,2], zdir='z')
 
 def TZ_integration(in_signal):
 	lgth=in_signal.shape
-	integral=np.zeros([lgth])
+	integral=np.zeros(lgth)
 	c=0
 	for indice, s in enumerate(in_signal):
 		if indice==0:
