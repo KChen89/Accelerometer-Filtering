@@ -39,6 +39,46 @@ def read_data(file_path, columns):
 	f.close()
 	return data
 
+
+def coeffs_interp(coeffs, s_lgth):
+	'''
+	interpolation of coefficients
+	Args:
+		coeffs: coeffs (list)
+		s_lgth: expected length after interpolation
+	Returns:
+		ucoeffs: coefficients after interpolation
+	'''
+	level=len(coeffs)
+	ucoeffs=list()
+	r_index=np.linspace(0, s_lgth, s_lgth, endpoint=False)
+	for i in range(level):
+		w_data=coeffs[i]
+		temp_index=np.linspace(0, s_lgth, w_data.shape[0], endpoint=True)
+		intep_f=interp1d(temp_index, w_data)
+		intep_data=intep_f(r_index)
+		ucoeffs.append(intep_data)
+	return ucoeffs
+
+def plot_wavelets(coeffs):
+	'''
+	plot coefficients of each level
+	Args:
+		coeffs: coefficients in list
+	Returns:
+		none
+	'''
+	level=len(coeffs)
+	fig, axes=plt.subplots(level, 1)
+	for i in range(level):
+		axes[level-i-1].plot(coeffs[i])
+		axes[level-i-1].set_xlim([0, len(coeffs[i])-1])
+		if i==level-1:
+			title='cA'+str(i)
+		else:
+			title='cD'+str(i+1)
+		axes[i].set_title(title)
+
 def fft_plot(data, fs):
 	lgth, num_signal=data.shape
 	fqy=np.zeros([lgth,num_signal])
