@@ -6,7 +6,9 @@ utility function to read data, integration, and plot
 import os
 import sys
 import numpy as np 
+import math
 import matplotlib.pyplot as plt
+from scipy.fftpack import fft
 from mpl_toolkits.mplot3d import Axes3D
 
 def read_data(file_path, columns):
@@ -31,21 +33,42 @@ def read_data(file_path, columns):
 			# print(row)
 			for ii, i in enumerate(columns):
 				data[indice,ii]=row[i]
-		data[:,2]-=10
+		# data[:,2]-=10
+		# for i in range(3):
+		# 	data[:,i]=calibration(data[:,i])
 	f.close()
 	return data
 
-def plot_lines(data):
+def fft_plot(data, fs):
+	lgth, num_signal=data.shape
+	fqy=np.zeros([lgth,num_signal])
+	fqy[:,0]=fft(data[:,0])
+	fqy[:,1]=fft(data[:,1])
+	fqy[:,2]=fft(data[:,2])
+	index=np.arange(int(lgth/2))/(int(lgth/2)/(fs/2))
+	fig, ax=plt.subplots()
+	labels=['x','y','z']
+	color_map=['r', 'g', 'b']
+	for i in range(3):
+		ax.plot(index, np.abs(fqy[0:int(lgth/2),i]), color_map[i], label=labels[i])
+	ax.set_xlim([0, fs/2])
+	ax.set_xlabel('Hz')
+	ax.set_title('Frequency spectrum')
+	ax.legend()
+
+def plot_lines(data, fs):
 	num_rows, num_cols=data.shape
 	if num_cols!=3:
 		raise ValueError('Not 3D data')
 	fig, ax=plt.subplots()
 	labels=['x','y','z']
 	color_map=['r', 'g', 'b']
+	index=np.arange(num_rows)/fs
 	for i in range(num_cols):
-		ax.plot(data[:,i], color_map[i], label=labels[i])
-	ax.set_xlim([0,num_rows])
-	ax.set_xlabel('Time')
+		ax.plot(index, data[:,i], color_map[i], label=labels[i])
+	ax.set_xlim([0,num_rows/fs])
+	ax.set_xlabel('Time [sec]')
+	ax.set_title('Time domain')
 	ax.legend()
 
 def acc_integration(data):
@@ -69,9 +92,14 @@ def calibration(signal):
 	if inc_eng>der_eng:
 		beta_p=1
 		beta_n=inc_eng/der_eng
-	else:
+		c_signal=(beta_n-1)*np.clip(signal, a_max=0, a_min=None)+signal
+	elif der_eng>inc_eng:
 		beta_n=1
 		beta_p=der_eng/inc_eng
+		c_signal=(beta_p-1)*np.clip(signal, a_min=0, a_max=None)+signal
+	else:
+		c_signal=signal
+	return c_signal
 
 def TZ_integration(in_signal):
 	lgth=in_signal.shape

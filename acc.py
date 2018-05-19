@@ -10,13 +10,15 @@ from util import*
 
 def test_data(file_name):
 	cur_dir=os.getcwd()
+	fs=512
 	file_path=os.path.join(cur_dir, 'data', file_name)
 	data=read_data(file_path, [1,2,3])
-	plot_lines(data)
-	velocity=acc_integration(data)
-	plot_lines(velocity)
-	displacement=acc_integration(velocity)
-	plot_lines(displacement)
+	plot_lines(data, fs)
+	fft_plot(data, fs)
+	# velocity=acc_integration(data)
+	# plot_lines(velocity)
+	# displacement=acc_integration(velocity)
+	# plot_lines(displacement)
 	plot3D(data)
 	plt.show()
 
