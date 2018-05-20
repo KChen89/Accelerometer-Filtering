@@ -47,58 +47,15 @@ def median_filter(data, f_size):
 		f_data[:,i]=signal.medfilt(data[:,i], f_size)
 	return f_data
 
-def freq_filter(data, cutoff):
-	pass
-
-def coeffs_interp(coeffs, s_lgth):
-	'''
-	interpolation of coefficients
-	Args:
-		coeffs: coeffs (list)
-		s_lgth: expected length after interpolation
-	Returns:
-		ucoeffs: coefficients after interpolation
-	'''
-	level=len(coeffs)
-	ucoeffs=list()
-	r_index=np.linspace(0, s_lgth, s_lgth, endpoint=False)
-	for i in range(level):
-		w_data=coeffs[i]
-		temp_index=np.linspace(0, s_lgth, w_data.shape[0], endpoint=True)
-		intep_f=interp1d(temp_index, w_data)
-		intep_data=intep_f(r_index)
-		ucoeffs.append(intep_data)
-	return ucoeffs
-
-def data_wavelets_plot(data, ws=128, mw='db4', lev=7):
+def freq_filter(data, f_size, cutoff):
 	lgth, num_signal=data.shape
-	label=['x', 'y', 'z']
+	f_data=np.zeros([lgth, num_signal])
+	lpf=signal.firwin(f_size, cutoff, window='hamming')
 	for i in range(num_signal):
-		signal=np.pad(data[:,i], math.floor(ws/2), 'edge')
-		coeffs=wavedec(data, wavelet=mw, level=lev, mode='symmetric')
-		ucoeffs=coeffs_interp(coeffs, lgth)
-		plot_wavelets(ucoeffs, label[i])
+		f_data[:,i]=signal.convolve(data[:,i], lpf, mode='same')
+	return f_data
 
-def plot_wavelets(coeffs, title):
-	'''
-	plot coefficients of each level
-	Args:
-		coeffs: coefficients in list
-	Returns:
-		none
-	'''
-	level=len(coeffs)
-	fig, axes=plt.subplots(level, 1)
-	for i in range(level):
-		axes[level-i-1].plot(coeffs[i])
-		axes[level-i-1].set_xlim([0, len(coeffs[i])-1])
-		if i==level-1:
-			title='cA'+str(i)
-		else:
-			title='cD'+str(i+1)
-		axes[i].set_title(title)
-
-def fft_plot(data, fs):
+def fft_plot(data, fs, title):
 	lgth, num_signal=data.shape
 	fqy=np.zeros([lgth,num_signal])
 	fqy[:,0]=np.abs(fft(data[:,0]))
@@ -112,10 +69,10 @@ def fft_plot(data, fs):
 		ax.plot(index, fqy[0:int(lgth/2),i], color_map[i], label=labels[i])
 	ax.set_xlim([0, fs/2])
 	ax.set_xlabel('Hz')
-	ax.set_title('Frequency spectrum')
+	ax.set_title('Frequency spectrum: '+title) 
 	ax.legend()
 
-def plot_lines(data, fs):
+def plot_lines(data, fs, title):
 	num_rows, num_cols=data.shape
 	if num_cols!=3:
 		raise ValueError('Not 3D data')
@@ -127,7 +84,7 @@ def plot_lines(data, fs):
 		ax.plot(index, data[:,i], color_map[i], label=labels[i])
 	ax.set_xlim([0,num_rows/fs])
 	ax.set_xlabel('Time [sec]')
-	ax.set_title('Time domain')
+	ax.set_title('Time domain: '+title)
 	ax.legend()
 
 def acc_integration(data):
@@ -137,10 +94,11 @@ def acc_integration(data):
 		int_data[:,i]=TZ_integration(data[:,i])
 	return int_data
 
-def plot3D(data):
+def plot3D(data, title):
 	fig=plt.figure()
 	ax=fig.add_subplot(111, projection='3d')
 	ax.plot(xs=data[:,0], ys=data[:,1], zs=data[:,2], zdir='z')
+	ax.set_title(title)
 
 def calibration(signal):
 	inc_eng=np.sum(np.clip(signal, a_min=0, a_max=None))
