@@ -3,7 +3,7 @@ Filter 3D accelerometer data [1] with median and low pass filter. Median filter 
 ![time domain](screenshots/filter_time_domain.png)
 Time domain comparsion. 
 ![3d trace](screenshots/trace.png)
-
+Accelerometer data 3D trace. 
 ### Dependencies
 - Numpy
 - Scipy
