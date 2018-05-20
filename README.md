@@ -1,5 +1,5 @@
 # Accelerometer data filtering
-Filter 3D accelerometer data [1] with median and low pass filter. Median filter generally remove big spikes. But, high frequency noise exists at very low amplitude. Low pass filter only preserves low frequency which creates undesirable distortions. Combing median and low pass filter generally recovers a better trace. </br>
+Filter 3D accelerometer data [1] with median and low pass filter. Median filter generally remove big spikes. But, high frequency noise exists at very low amplitude. Low pass filter only preserves low frequency which creates undesirable distortions. Combing median and low pass filter generally recovers a better trace (since there is no groud truth signal to verify which one is better, just follow orignal data description [1] and verify with eyes).</br>
 ![time domain](screenshots/filter_time_domain.png)
 Time domain comparsion. 
 ![3d trace](screenshots/trace.png)
