@@ -15,11 +15,11 @@ def test_data(file_name):
 	data=read_data(file_path, [1,2,3])
 	plot_lines(data, fs)
 	fft_plot(data, fs)
-	# velocity=acc_integration(data)
-	# plot_lines(velocity)
-	# displacement=acc_integration(velocity)
-	# plot_lines(displacement)
+	f_data=median_filter(data, 155)
+	plot_lines(f_data, fs)
+	fft_plot(f_data, fs)
 	plot3D(data)
+	plot3D(f_data)
 	plt.show()
 
 if __name__ == '__main__':

@@ -9,6 +9,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from scipy.fftpack import fft
+from scipy import signal
 from mpl_toolkits.mplot3d import Axes3D
 
 def read_data(file_path, columns):
@@ -39,6 +40,15 @@ def read_data(file_path, columns):
 	f.close()
 	return data
 
+def median_filter(data, f_size):
+	lgth, num_signal=data.shape
+	f_data=np.zeros([lgth, num_signal])
+	for i in range(num_signal):
+		f_data[:,i]=signal.medfilt(data[:,i], f_size)
+	return f_data
+
+def freq_filter(data, cutoff):
+	pass
 
 def coeffs_interp(coeffs, s_lgth):
 	'''
@@ -60,7 +70,16 @@ def coeffs_interp(coeffs, s_lgth):
 		ucoeffs.append(intep_data)
 	return ucoeffs
 
-def plot_wavelets(coeffs):
+def data_wavelets_plot(data, ws=128, mw='db4', lev=7):
+	lgth, num_signal=data.shape
+	label=['x', 'y', 'z']
+	for i in range(num_signal):
+		signal=np.pad(data[:,i], math.floor(ws/2), 'edge')
+		coeffs=wavedec(data, wavelet=mw, level=lev, mode='symmetric')
+		ucoeffs=coeffs_interp(coeffs, lgth)
+		plot_wavelets(ucoeffs, label[i])
+
+def plot_wavelets(coeffs, title):
 	'''
 	plot coefficients of each level
 	Args:
@@ -82,15 +101,15 @@ def plot_wavelets(coeffs):
 def fft_plot(data, fs):
 	lgth, num_signal=data.shape
 	fqy=np.zeros([lgth,num_signal])
-	fqy[:,0]=fft(data[:,0])
-	fqy[:,1]=fft(data[:,1])
-	fqy[:,2]=fft(data[:,2])
+	fqy[:,0]=np.abs(fft(data[:,0]))
+	fqy[:,1]=np.abs(fft(data[:,1]))
+	fqy[:,2]=np.abs(fft(data[:,2]))
 	index=np.arange(int(lgth/2))/(int(lgth/2)/(fs/2))
 	fig, ax=plt.subplots()
 	labels=['x','y','z']
 	color_map=['r', 'g', 'b']
 	for i in range(3):
-		ax.plot(index, np.abs(fqy[0:int(lgth/2),i]), color_map[i], label=labels[i])
+		ax.plot(index, fqy[0:int(lgth/2),i], color_map[i], label=labels[i])
 	ax.set_xlim([0, fs/2])
 	ax.set_xlabel('Hz')
 	ax.set_title('Frequency spectrum')
