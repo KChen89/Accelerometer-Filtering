@@ -9,7 +9,7 @@ Accelerometer data 3D trace.
 - Scipy
 - Matplotlib
 
-:question: :dizzy_face: However, according the original data source description [1], the above 3D trace is suppose to be the displacement which is the integration of integration of accelerometer. When I integrated the data twice, it does not show a meaningful result. :confused:  :dizzy_face:
+:question: However, according the original data source description [1], the above 3D trace is suppose to be the displacement which is the integration of integration of accelerometer. When I integrated the data twice, it does not show a meaningful result. :confused:  
 
 #### More
 - [x] filter data to create a clear trace
